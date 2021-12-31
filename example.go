@@ -64,12 +64,17 @@ func postBookHandler(c *gin.Context) {
 	if err != nil {
 		// log.Fatal(err)
 
+		errorMessages := []string{}
 		for _, e := range err.(validator.ValidationErrors) {
 			errorMessage := fmt.Sprintf("Unprocessable Entity on field %s, condition: %s", e.Field(), e.ActualTag())
-			c.JSON(http.StatusUnprocessableEntity, errorMessage)
+			errorMessages = append(errorMessages, errorMessage)
 			// fmt.Println(err)
-			return
 		}
+
+		c.JSON(http.StatusUnprocessableEntity, gin.H{
+			"errors": errorMessages,
+		})
+		return
 	}
 
 	c.JSON(http.StatusCreated, gin.H{

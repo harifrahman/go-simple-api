@@ -11,14 +11,18 @@ import (
 
 func main() {
 	r := gin.Default()
+
 	r.GET("/", rootHandler)
 	r.GET("/ping", pingHandler)
 	r.GET("/query", queryHandler)
 
-	r.GET("/books/:id", bookHandler)
-	r.GET("/books/:id/:title", bookHandler)
+	// api grouping / versioning route
+	api := r.Group("/api") // relative to localhost/api
+	v1 := api.Group("/v1") // relative to localhost/api/v1
+	v1.GET("/books/:id", bookHandler)
+	v1.GET("/books/:id/:title", bookHandler)
 
-	r.POST("/books", postBookHandler)
+	v1.POST("/books", postBookHandler)
 
 	r.Run(":9090") // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
 }

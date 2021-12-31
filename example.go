@@ -1,10 +1,12 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 )
 
 func main() {
@@ -61,9 +63,13 @@ func postBookHandler(c *gin.Context) {
 
 	if err != nil {
 		// log.Fatal(err)
-		c.JSON(http.StatusUnprocessableEntity, err)
-		fmt.Println(err)
-		return
+
+		for _, e := range err.(validator.ValidationErrors) {
+			errorMessage := fmt.Sprintf("Unprocessable Entity on field %s, condition: %s", e.Field(), e.ActualTag())
+			c.JSON(http.StatusUnprocessableEntity, errorMessage)
+			// fmt.Println(err)
+			return
+		}
 	}
 
 	c.JSON(http.StatusCreated, gin.H{
@@ -78,7 +84,7 @@ func postBookHandler(c *gin.Context) {
 	Author string `json:"authorName"`
 */
 type BookInput struct {
-	Title  string `json:"title" binding:"required"`
-	Price  int    `json:"price" binding:"required,number"`
-	Author string `json:"authorName"`
+	Title  string      `json:"title" binding:"required"`
+	Price  json.Number `json:"price" binding:"required,number"`
+	Author string      `json:"authorName"`
 }

@@ -1,8 +1,10 @@
 package main
 
 import (
-	"github.com/gin-gonic/gin"
+	"log"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
 func main() {
@@ -13,6 +15,8 @@ func main() {
 
 	r.GET("/books/:id", bookHandler)
 	r.GET("/books/:id/:title", bookHandler)
+
+	r.POST("/books", postBookHandler)
 
 	r.Run(":9090") // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
 }
@@ -48,4 +52,30 @@ func queryHandler(c *gin.Context) {
 		"title": title,
 		"price": price,
 	})
+}
+
+func postBookHandler(c *gin.Context) {
+	var bookInput BookInput
+
+	err := c.ShouldBindJSON(&bookInput)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	c.JSON(http.StatusCreated, gin.H{
+		"title":      bookInput.Title,
+		"price":      bookInput.Price,
+		"authorName": bookInput.Author,
+	})
+}
+
+/*
+	use something like below to specify input name
+	Author string `json:"authorName"`
+*/
+type BookInput struct {
+	Title  string
+	Price  int
+	Author string `json:"authorName"`
 }

@@ -1,11 +1,27 @@
 package main
 
 import (
-	"github.com/gin-gonic/gin"
+	"fmt"
+	"log"
 	"pustaka-api/handler"
+
+	"github.com/gin-gonic/gin"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 )
 
 func main() {
+
+	// refer https://github.com/go-sql-driver/mysql#dsn-data-source-name for details
+	dsn := "pustaka:123456@tcp(127.0.0.1:3302)/pustaka_api?charset=utf8&parseTime=True&loc=Local"
+	_, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+
+	if err != nil {
+		log.Fatal("Db connection error!")
+	}
+
+	fmt.Println("Db connected successfully")
+
 	r := gin.Default()
 
 	r.GET("/", handler.RootHandler)
